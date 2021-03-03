@@ -4,7 +4,7 @@ A command line tool to export [Swinsian](https://swinsian.com/) playlists to iTu
 * Reads song data from the iTunesLibrary Framework (macOS 10.15+). (Thanks to code from the [idbcl](https://github.com/jmkerr/idbcl/) project.)
 * Keeps track of files being removed from iTunes, so that we can keep proper count of playcount (and future feature of cleaning up created mp3s).
 ### Install:
-* Place `sw2iphone` from the bin folder (or your output directory if you compile yourself) in your $PATH (or reference it directly).
+* Download `sw2iphone.zip` from the latest [release](https://github.com/akda5id/sw2iphone/releases/) and extract it and place in your $PATH (or reference it directly).
 * If you have FLAC files you want to sync, make sure you have sox, lame, and metaflac installed in /usr/local/bin/. Recommend installing with homebrew for ease: `brew install flac`  `brew install lame` and `brew install sox`.
 #### Usage:
 `sw2iphone -h` will give the commands, but here is what you need to know:
