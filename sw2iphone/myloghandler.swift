@@ -1,23 +1,24 @@
 //
 //  myloghandler.swift
 //
-//
-//  Based on Logging.swift from https://github.com/apple/swift-log/
-//  Apache License 2.0
-//
+//  Based on portions of Logging.swift from https://github.com/apple/swift-log/
+//  SPDX-License-Identifier: Apache-2.0
 
+import Foundation
+import Logging
+import Darwin
 
 /// `StreamLogHandler` is a simple implementation of `LogHandler` for directing
 /// `Logger` output to either `stderr` or `stdout` via the factory methods.
-public struct StreamLogHandler: LogHandler {
+public struct MyStreamLogHandler: LogHandler {
     /// Factory that makes a `StreamLogHandler` to directs its output to `stdout`
-    public static func standardOutput(label: String) -> StreamLogHandler {
-        return StreamLogHandler(label: label, stream: StdioOutputStream.stdout)
+    public static func standardOutput(label: String) -> MyStreamLogHandler {
+        return MyStreamLogHandler(label: label, stream: StdioOutputStream.stdout)
     }
 
     /// Factory that makes a `StreamLogHandler` to directs its output to `stderr`
-    public static func standardError(label: String) -> StreamLogHandler {
-        return StreamLogHandler(label: label, stream: StdioOutputStream.stderr)
+    public static func standardError(label: String) -> MyStreamLogHandler {
+        return MyStreamLogHandler(label: label, stream: StdioOutputStream.stderr)
     }
 
     private let stream: TextOutputStream
@@ -54,13 +55,46 @@ public struct StreamLogHandler: LogHandler {
                     file: String,
                     function: String,
                     line: UInt) {
-        let prettyMetadata = metadata?.isEmpty ?? true
-            ? self.prettyMetadata
-            : self.prettify(self.metadata.merging(metadata!, uniquingKeysWith: { _, new in new }))
+//        let prettyMetadata = metadata?.isEmpty ?? true
+//            ? self.prettyMetadata
+//            : self.prettify(self.metadata.merging(metadata!, uniquingKeysWith: { _, new in new }))
 
         var stream = self.stream
-        stream.write("\(self.timestamp()) \(level) \(self.label) :\(prettyMetadata.map { " \($0)" } ?? "") \(message)\n")
+        if (self.logLevel == .info) && (level == .info) {
+            stream.write("\(message)\n")
+        } else {
+            switch level {
+            case .trace:
+                stream.write("\(self.yellow)\(level): \(message)\(self.black)\n")
+            case .debug:
+                stream.write("\(self.blue)\(level): \(message)\(self.black)\n")
+            case .warning:
+                stream.write("\(self.magenta)\(level): \(message)\(self.black)\n")
+            case .error:
+                stream.write("\(self.red)\(level): \(message)\(self.black)\n")
+            default:
+                stream.write("\(level): \(message)\n")
+            } //\(self.timestamp())
+        }
+        
     }
+    
+    enum ANSIColors: String {
+        case black = "\u{001B}[0;30m"
+        case red = "\u{001B}[0;31m"
+        case green = "\u{001B}[0;32m"
+        case yellow = "\u{001B}[0;33m"
+        case blue = "\u{001B}[0;34m"
+        case magenta = "\u{001B}[0;35m"
+        case cyan = "\u{001B}[0;36m"
+        case white = "\u{001B}[0;37m"
+    }
+    var blue: String { return ANSIColors.blue.rawValue }
+    var yellow: String { return ANSIColors.yellow.rawValue }
+    var red: String { return ANSIColors.red.rawValue }
+    var green: String { return ANSIColors.green.rawValue }
+    var black: String { return ANSIColors.black.rawValue }
+    var magenta: String { return ANSIColors.magenta.rawValue }
 
     private func prettify(_ metadata: Logger.Metadata) -> String? {
         return !metadata.isEmpty
@@ -72,7 +106,7 @@ public struct StreamLogHandler: LogHandler {
         var buffer = [Int8](repeating: 0, count: 255)
         var timestamp = time(nil)
         let localTime = localtime(&timestamp)
-        strftime(&buffer, buffer.count, "%Y-%m-%dT%H:%M:%S%z", localTime)
+        strftime(&buffer, buffer.count, "%H:%M:%S", localTime)
         return buffer.withUnsafeBufferPointer {
             $0.withMemoryRebound(to: CChar.self) {
                 String(cString: $0.baseAddress!)
@@ -134,18 +168,5 @@ internal struct StdioOutputStream: TextOutputStream {
 }
 
 // Prevent name clashes
-#if os(macOS) || os(tvOS) || os(iOS) || os(watchOS)
 let systemStderr = Darwin.stderr
 let systemStdout = Darwin.stdout
-#elseif os(Windows)
-let systemStderr = CRT.stderr
-let systemStdout = CRT.stdout
-#elseif canImport(Glibc)
-let systemStderr = Glibc.stderr!
-let systemStdout = Glibc.stdout!
-#elseif canImport(WASILibc)
-let systemStderr = WASILibc.stderr!
-let systemStdout = WASILibc.stdout!
-#else
-#error("Unsupported runtime")
-#endif

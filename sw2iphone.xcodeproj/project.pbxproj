@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -11,6 +11,11 @@
 		5F9DEBB425ED76D600BEC132 /* track.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9DEBB125ED76D600BEC132 /* track.swift */; };
 		5F9DEBB525ED76D600BEC132 /* myloghandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9DEBB225ED76D600BEC132 /* myloghandler.swift */; };
 		5F9DEBB625ED76D600BEC132 /* sync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9DEBB325ED76D600BEC132 /* sync.swift */; };
+		5F9DEBB825ED89DD00BEC132 /* exportPlaylistAplScript.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9DEBB725ED89DD00BEC132 /* exportPlaylistAplScript.swift */; };
+		5F9DEBBA25ED8A5000BEC132 /* database.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9DEBB925ED8A5000BEC132 /* database.swift */; };
+		5F9DEBBD25EDE12F00BEC132 /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 5F9DEBBC25EDE12F00BEC132 /* ArgumentParser */; };
+		5F9DEBC025EDE16C00BEC132 /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = 5F9DEBBF25EDE16C00BEC132 /* GRDB */; };
+		5F9DEBC325EDE18B00BEC132 /* Logging in Frameworks */ = {isa = PBXBuildFile; productRef = 5F9DEBC225EDE18B00BEC132 /* Logging */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -31,6 +36,10 @@
 		5F9DEBB125ED76D600BEC132 /* track.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = track.swift; sourceTree = "<group>"; };
 		5F9DEBB225ED76D600BEC132 /* myloghandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = myloghandler.swift; sourceTree = "<group>"; };
 		5F9DEBB325ED76D600BEC132 /* sync.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = sync.swift; sourceTree = "<group>"; };
+		5F9DEBB725ED89DD00BEC132 /* exportPlaylistAplScript.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = exportPlaylistAplScript.swift; sourceTree = "<group>"; };
+		5F9DEBB925ED8A5000BEC132 /* database.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = database.swift; sourceTree = "<group>"; };
+		5FBA9D0525EEBF3D0099B4F1 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		5FBA9D0625EF4C2E0099B4F1 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -38,6 +47,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5F9DEBC325EDE18B00BEC132 /* Logging in Frameworks */,
+				5F9DEBBD25EDE12F00BEC132 /* ArgumentParser in Frameworks */,
+				5F9DEBC025EDE16C00BEC132 /* GRDB in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -47,6 +59,8 @@
 		5F9DEB9E25ED76C400BEC132 = {
 			isa = PBXGroup;
 			children = (
+				5FBA9D0525EEBF3D0099B4F1 /* LICENSE */,
+				5FBA9D0625EF4C2E0099B4F1 /* README.md */,
 				5F9DEBA925ED76C400BEC132 /* sw2iphone */,
 				5F9DEBA825ED76C400BEC132 /* Products */,
 			);
@@ -65,8 +79,10 @@
 			children = (
 				5F9DEBB225ED76D600BEC132 /* myloghandler.swift */,
 				5F9DEBB325ED76D600BEC132 /* sync.swift */,
+				5F9DEBB925ED8A5000BEC132 /* database.swift */,
 				5F9DEBB125ED76D600BEC132 /* track.swift */,
 				5F9DEBAA25ED76C400BEC132 /* main.swift */,
+				5F9DEBB725ED89DD00BEC132 /* exportPlaylistAplScript.swift */,
 			);
 			path = sw2iphone;
 			sourceTree = "<group>";
@@ -87,6 +103,11 @@
 			dependencies = (
 			);
 			name = sw2iphone;
+			packageProductDependencies = (
+				5F9DEBBC25EDE12F00BEC132 /* ArgumentParser */,
+				5F9DEBBF25EDE16C00BEC132 /* GRDB */,
+				5F9DEBC225EDE18B00BEC132 /* Logging */,
+			);
 			productName = sw2iphone;
 			productReference = 5F9DEBA725ED76C400BEC132 /* sw2iphone */;
 			productType = "com.apple.product-type.tool";
@@ -115,6 +136,11 @@
 				Base,
 			);
 			mainGroup = 5F9DEB9E25ED76C400BEC132;
+			packageReferences = (
+				5F9DEBBB25EDE12F00BEC132 /* XCRemoteSwiftPackageReference "swift-argument-parser" */,
+				5F9DEBBE25EDE16C00BEC132 /* XCRemoteSwiftPackageReference "GRDB.swift" */,
+				5F9DEBC125EDE18B00BEC132 /* XCRemoteSwiftPackageReference "swift-log" */,
+			);
 			productRefGroup = 5F9DEBA825ED76C400BEC132 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -131,7 +157,9 @@
 			files = (
 				5F9DEBB525ED76D600BEC132 /* myloghandler.swift in Sources */,
 				5F9DEBAB25ED76C400BEC132 /* main.swift in Sources */,
+				5F9DEBBA25ED8A5000BEC132 /* database.swift in Sources */,
 				5F9DEBB625ED76D600BEC132 /* sync.swift in Sources */,
+				5F9DEBB825ED89DD00BEC132 /* exportPlaylistAplScript.swift in Sources */,
 				5F9DEBB425ED76D600BEC132 /* track.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -172,6 +200,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 0.1.0;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
@@ -196,6 +225,7 @@
 				SDKROOT = macosx;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
 		};
@@ -232,6 +262,7 @@
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 0.1.0;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -249,6 +280,7 @@
 				SDKROOT = macosx;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;
 		};
@@ -256,6 +288,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				CREATE_INFOPLIST_SECTION_IN_BINARY = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};
@@ -265,6 +298,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
+				CREATE_INFOPLIST_SECTION_IN_BINARY = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};
@@ -292,6 +326,51 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		5F9DEBBB25EDE12F00BEC132 /* XCRemoteSwiftPackageReference "swift-argument-parser" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-argument-parser";
+			requirement = {
+				kind = upToNextMinorVersion;
+				minimumVersion = 0.3.2;
+			};
+		};
+		5F9DEBBE25EDE16C00BEC132 /* XCRemoteSwiftPackageReference "GRDB.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/groue/GRDB.swift.git";
+			requirement = {
+				kind = upToNextMinorVersion;
+				minimumVersion = 5.4.0;
+			};
+		};
+		5F9DEBC125EDE18B00BEC132 /* XCRemoteSwiftPackageReference "swift-log" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-log.git";
+			requirement = {
+				kind = upToNextMinorVersion;
+				minimumVersion = 1.4.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		5F9DEBBC25EDE12F00BEC132 /* ArgumentParser */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5F9DEBBB25EDE12F00BEC132 /* XCRemoteSwiftPackageReference "swift-argument-parser" */;
+			productName = ArgumentParser;
+		};
+		5F9DEBBF25EDE16C00BEC132 /* GRDB */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5F9DEBBE25EDE16C00BEC132 /* XCRemoteSwiftPackageReference "GRDB.swift" */;
+			productName = GRDB;
+		};
+		5F9DEBC225EDE18B00BEC132 /* Logging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5F9DEBC125EDE18B00BEC132 /* XCRemoteSwiftPackageReference "swift-log" */;
+			productName = Logging;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 5F9DEB9F25ED76C400BEC132 /* Project object */;
 }

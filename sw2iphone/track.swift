@@ -1,14 +1,13 @@
 //
 //  track.swift
 //
-//
 //  Based on track.swift from https://github.com/jmkerr/idbcl/
 //  Portions copyright (c) 2019 Jonathan Kerr (MIT License)
+//  Additions by akda5id, also MIT Licensed
+//  SPDX-License-Identifier: MIT
 
 import iTunesLibrary
-
-let DEFAULT_RATING: Int = 0
-let DEFAULT_PLAY_COUNT: Int = 0
+import Foundation
 
 protocol Track: CustomStringConvertible {
     var persistentID: String { get }
@@ -61,60 +60,36 @@ class LibraryTrack: Track {
         else { return item.value(forProperty: ITLibMediaItemPropertyRating) as? Int }
     }
     
-    var playCount: Int? { return item.value(forProperty: ITLibMediaItemPropertyPlayCount) as? Int}
-}
-
-
-
-public class DatabaseTrack: Track {
-    public static let metadataLayout = [
-        ITLibMediaItemPropertyAlbumTitle
-        , ITLibMediaItemPropertyArtistName
-        , ITLibMediaItemPropertyBitRate
-        , ITLibMediaItemPropertyComments
-        , ITLibMediaItemPropertyFileSize
-        , ITLibMediaItemPropertyGenre
-        , ITLibMediaItemPropertyKind
-        , ITLibMediaItemPropertyPlayCount
-        , ITLibMediaItemPropertyRating
-        , ITLibMediaItemPropertySampleRate
-        , ITLibMediaItemPropertyTitle
-        , ITLibMediaItemPropertyTotalTime
-        , ITLibMediaItemPropertyYear
-    ]
-    
-    let meta: [Any?]
-    let playCounts: [(String, Int, Int)]
-    let ratings: [(String, Int, Int)]
-    
-    var persistentID: String { return meta[0] as! String }
-    var playCount: Int? { return playCount() }
-    var rating: Int? { return rating() }
-    
-    init(meta: [Any?], playCounts: [(String, Int, Int)] = [], ratings: [(String, Int, Int)] = []) {
-        assert(meta.count == DatabaseTrack.metadataLayout.count + 1, "Wrong usage of DatabaseTrack.init()")
-        assert((meta[0] as? String)?.range(of: "^[0-9A-F]{16}$", options: .regularExpression, range: nil, locale: nil) != nil, "Not an ID: \(String(describing: meta[0]))")
-        
-        self.playCounts = playCounts.sorted(by: { $0.1 > $1.1 })
-        self.ratings = ratings.sorted(by: { $0.1 > $1.1 })
-        self.meta = meta
+    var title: String? {
+        return item.value(forProperty: ITLibMediaItemPropertyTitle) as? String
     }
     
-    func playCount(date: Int = Int(Date().timeIntervalSince1970)) -> Int? {
-        let bestPc = playCounts.first(where: { $0.1 < date })
-        if let pc = bestPc { return pc.2 } else { return nil }
+    var comments: String? {
+        return item.value(forProperty: ITLibMediaItemPropertyComments) as? String
     }
     
-    func rating(date: Int = Int(Date().timeIntervalSince1970)) -> Int? {
-        let bestRating = ratings.first(where: { $0.1 < date })
-        if let r = bestRating { return r.2 } else { return nil }
-    }
-    
-    func value(forProperty property: String) -> Any? {
-        if let index = DatabaseTrack.metadataLayout.firstIndex(of: property) {
-            return meta[index + 1]
-        } else {
-            return nil
+    var SwID: Int64? {
+        if let com = self.comments {
+            if let res = com.components(separatedBy: "SwTrackID:").last {
+                return Int64(res)
+            }
         }
+        return nil
     }
+    
+    var path: String {
+        let url = item.value(forProperty: ITLibMediaItemPropertyLocation) as! URL
+        return url.path
+    }
+    
+    var playCount: Int? { return item.value(forProperty: ITLibMediaItemPropertyPlayCount) as? Int}
+    var lastPlayed: Int? {
+        let date = item.value(forProperty: ITLibMediaItemPropertyLastPlayDate) as? Date
+        if date != nil { return Int(date!.timeIntervalSince1970) } else { return nil }
+    }
+    var lastPlayedDate: Date? {
+        let date = item.value(forProperty: ITLibMediaItemPropertyLastPlayDate) as? Date
+        if date != nil { return date! } else { return nil }
+    }
+    
 }
