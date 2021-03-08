@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5F70FC8725F5BF44009F726A /* clean.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F70FC8625F5BF44009F726A /* clean.swift */; };
 		5F9DEBAB25ED76C400BEC132 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9DEBAA25ED76C400BEC132 /* main.swift */; };
 		5F9DEBB425ED76D600BEC132 /* track.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9DEBB125ED76D600BEC132 /* track.swift */; };
 		5F9DEBB525ED76D600BEC132 /* myloghandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5F9DEBB225ED76D600BEC132 /* myloghandler.swift */; };
@@ -31,6 +32,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		5F70FC8625F5BF44009F726A /* clean.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = clean.swift; sourceTree = "<group>"; };
 		5F9DEBA725ED76C400BEC132 /* sw2iphone */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = sw2iphone; sourceTree = BUILT_PRODUCTS_DIR; };
 		5F9DEBAA25ED76C400BEC132 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		5F9DEBB125ED76D600BEC132 /* track.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = track.swift; sourceTree = "<group>"; };
@@ -79,6 +81,7 @@
 			children = (
 				5F9DEBB225ED76D600BEC132 /* myloghandler.swift */,
 				5F9DEBB325ED76D600BEC132 /* sync.swift */,
+				5F70FC8625F5BF44009F726A /* clean.swift */,
 				5F9DEBB925ED8A5000BEC132 /* database.swift */,
 				5F9DEBB125ED76D600BEC132 /* track.swift */,
 				5F9DEBAA25ED76C400BEC132 /* main.swift */,
@@ -158,6 +161,7 @@
 				5F9DEBB525ED76D600BEC132 /* myloghandler.swift in Sources */,
 				5F9DEBAB25ED76C400BEC132 /* main.swift in Sources */,
 				5F9DEBBA25ED8A5000BEC132 /* database.swift in Sources */,
+				5F70FC8725F5BF44009F726A /* clean.swift in Sources */,
 				5F9DEBB625ED76D600BEC132 /* sync.swift in Sources */,
 				5F9DEBB825ED89DD00BEC132 /* exportPlaylistAplScript.swift in Sources */,
 				5F9DEBB425ED76D600BEC132 /* track.swift in Sources */,
@@ -289,6 +293,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CREATE_INFOPLIST_SECTION_IN_BINARY = NO;
+				CURRENT_PROJECT_VERSION = 0.2.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};
@@ -299,6 +304,7 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CREATE_INFOPLIST_SECTION_IN_BINARY = NO;
+				CURRENT_PROJECT_VERSION = 0.2.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
 			};

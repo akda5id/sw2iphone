@@ -162,7 +162,11 @@ func checkForStaleTracks() -> Void {
             let res = try OurTracks.filter((OurTracks.Columns.our_lastseen_it < run_started) && (OurTracks.Columns.our_lastseen_it != 1.0)).updateAll(db, OurTracks.Columns.our_lastseen_it.set(to: 1),
                                                                           OurTracks.Columns.our_playcount.set(to: 0))
             if res > 0 {
-                l.warning("\(res) were detected removed from iTunes. I took care of reseting my database for those tracks. Perhaps one day I'll be smart enough to clean up on disk if needed, but for now that is up to you.")
+                if !clean {
+                    l.warning("\(res) were detected removed from iTunes. I took care of reseting my database for those tracks. If you would like to remove those files from disk if we created them, run with the --clean flag set")
+                } else {
+                    l.info("\(res) were detected removed from iTunes.")
+                }
             }
         }
     } catch let error as DatabaseError {

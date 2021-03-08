@@ -22,6 +22,7 @@ var mp3_url: URL?
 var playlist_loc: URL?
 var dry_run: Bool = false
 var dry_run_paths: [String] = []
+var clean: Bool = false
 
 if !FileManager.default.fileExists(atPath: OurDB_URL.deletingLastPathComponent().path) {
     do {
@@ -73,6 +74,9 @@ struct sw2iphone: ParsableCommand {
     @Flag(name: .shortAndLong, help: "Sync playcounts and ratings back to Swinsian")
     var sync = false
     
+    @Flag(name: [.short, .customLong("clean")], help: "Clean up mp3 files we created, if they are no longer in iTunes")
+    var cleanflag = false
+    
     @Flag(name: [.customLong("v")], help: "Print some messages about what is happening")
     var verbose = false
     
@@ -80,7 +84,7 @@ struct sw2iphone: ParsableCommand {
     var v_verbose = false
     
     @Flag(name: [.short, .customLong("dry-run")], help: "Don't actually make any changes")
-    var dryrun = false
+    var dryrunflag = false
     
     @Flag(name: [.customLong("vvv")], help: .hidden)
     var vv_verbose = false
@@ -97,11 +101,15 @@ struct sw2iphone: ParsableCommand {
             l.logLevel = .info
         }
         
-        if dryrun {
+        if dryrunflag {
             dry_run = true
             l.trace("dry run starting at \(run_started)")
         } else {
             l.trace("run starting at \(run_started)")
+        }
+        
+        if cleanflag {
+            clean = true
         }
         
         if let path = path {
@@ -140,6 +148,9 @@ struct sw2iphone: ParsableCommand {
                 l.trace("would have wrote playlist to \(playlist_loc!.path)")
             }
             exportPlaylistAplScript(playlist)
+            if clean {
+                cleanTracks()
+            }
         } else if sync {
             print("Have you quit Swinsian since any playcount or ratings may have happened in the app (including by previous syncs from here)?")
             print("(y)es (or enter), (n)o, (d)o it for me")
@@ -157,6 +168,11 @@ struct sw2iphone: ParsableCommand {
                 }
             }
             doSync()
+            if clean {
+                cleanTracks()
+            }
+        } else if clean {
+            cleanTracks()
         } else {
             let help = sw2iphone.helpMessage()
             print(help)
