@@ -38,7 +38,7 @@ func doSync() -> Void {
     let songItems = mediaItems.filter { $0.mediaKind == ITLibMediaItemMediaKind.kindSong }
     if songItems.count < 1 {
         l.error("The iTunes-Library is empty.")
-        checkForStaleTracks()
+        checkForStaleITTracks()
         return
     }
 
@@ -46,6 +46,7 @@ func doSync() -> Void {
         let tr = LibraryTrack(fromItem: item)
         let rating: Int = (tr.rating ?? 0)/20
         let playcount: Int = tr.playCount ?? 0
+//        l.trace("doing \(tr.path)")
         
         var our_track_opt: OurTracks?
         OurDB.read { db in
@@ -68,9 +69,9 @@ func doSync() -> Void {
         
         var playcount_to_db: Int64 = our_track.our_playcount!
         
-        var sw_track_opt: SwTrackTable?
+        var sw_track_opt: SwTrack?
         SwDB.read { db in
-            let request = SwTrackTable.filter(key: our_track.our_track_id)
+            let request = SwTrack.filter(key: our_track.our_track_id)
             sw_track_opt = try? request.fetchOne(db)
         }
         
@@ -136,10 +137,10 @@ func doSync() -> Void {
         our_track.our_lastseen_it = run_started
         ourTrackSave(our_track)
     }
-    checkForStaleTracks()
+    checkForStaleITTracks()
 }
 
-func checkForStaleTracks() -> Void {
+func checkForStaleITTracks() -> Void {
     if dry_run {
         do {
             try OurDB.read { db in
@@ -159,8 +160,12 @@ func checkForStaleTracks() -> Void {
     }
     do {
         try OurDB.write { db in
-            let res = try OurTracks.filter((OurTracks.Columns.our_lastseen_it < run_started) && (OurTracks.Columns.our_lastseen_it != 1.0)).updateAll(db, OurTracks.Columns.our_lastseen_it.set(to: 1),
-                                                                          OurTracks.Columns.our_playcount.set(to: 0))
+            let res = try OurTracks.filter(
+                (OurTracks.Columns.our_lastseen_it < run_started) &&
+                (OurTracks.Columns.our_lastseen_it != 1.0))
+                    .updateAll(db,
+                    OurTracks.Columns.our_lastseen_it.set(to: 1),
+                    OurTracks.Columns.our_playcount.set(to: 0))
             if res > 0 {
                 if !clean {
                     l.warning("\(res) were detected removed from iTunes. I took care of reseting my database for those tracks. If you would like to remove those files from disk if we created them, run with the --clean flag set")

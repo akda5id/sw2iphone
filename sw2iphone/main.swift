@@ -91,6 +91,10 @@ struct sw2iphone: ParsableCommand {
     
     @Option(name: .shortAndLong, help: "Set the path to export to (will be saved for future runs)")
     var path: String?
+    
+    @Option(name: .shortAndLong, help: "Prepare tracks which haven't been seen in the last x minutes from Swinsian for deletion")
+    var age: Int?
+    
 
     func run() {
         if vv_verbose {
@@ -151,6 +155,9 @@ struct sw2iphone: ParsableCommand {
             if clean {
                 cleanTracks()
             }
+            if age != nil {
+                checkForStaleSWTracks(age!)
+            }
         } else if sync {
             print("Have you quit Swinsian since any playcount or ratings may have happened in the app (including by previous syncs from here)?")
             print("(y)es (or enter), (n)o, (d)o it for me")
@@ -171,8 +178,16 @@ struct sw2iphone: ParsableCommand {
             if clean {
                 cleanTracks()
             }
+            if age != nil {
+                checkForStaleSWTracks(age!)
+            }
         } else if clean {
             cleanTracks()
+            if age != nil {
+                checkForStaleSWTracks(age!)
+            }
+        } else if age != nil {
+            checkForStaleSWTracks(age!)
         } else {
             let help = sw2iphone.helpMessage()
             print(help)

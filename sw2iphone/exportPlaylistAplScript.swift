@@ -7,13 +7,19 @@
 import Foundation
 import GRDB
 
-func saveTrackInfo(_ track: TrackInfo) {
+func saveTrackInfo(_ track: SwTrack) {
     if dry_run { return }
     do {
         try OurDB.write { db in
-            if track.we_created_it ?? false {
-                let to_sql = OurTracks(our_track_id: Int64(track.id), our_track_path: track.path, our_playcount: 0, our_lastseen_sw: run_started, our_we_created_it: track.we_created_it)
-                try to_sql.save(db)
+            if track.we_created_it != nil {
+                if track.we_created_it! {
+                    let to_sql = OurTracks(our_track_id: Int64(track.id), our_track_path: track.path, our_playcount: 0, our_lastseen_sw: run_started, our_we_created_it: track.we_created_it)
+                    try to_sql.save(db)
+                } else {
+                    l.error("I don't think we should ever be here ZZ2")
+                    let to_sql = OurTracks(our_track_id: Int64(track.id), our_track_path: track.path, our_lastseen_sw: run_started, our_we_created_it: track.we_created_it)
+                    try to_sql.save(db)
+                }
             } else {
                 let to_sql = OurTracks(our_track_id: Int64(track.id), our_track_path: track.path, our_lastseen_sw: run_started, our_we_created_it: track.we_created_it)
                 try to_sql.save(db)
@@ -35,7 +41,8 @@ func saveTrackInfo(_ track: TrackInfo) {
 }
 
 func exportPlaylistAplScript(_ playlist: String) {
-    guard let count = getPlaylistLength(playlist) else {
+    let tracks = getTracks(playlist)
+    if tracks.isEmpty {
         l.error("empty playlist")
         return
     }
@@ -56,15 +63,12 @@ func exportPlaylistAplScript(_ playlist: String) {
     }
     defer { fileHandle?.closeFile() }
     
-    for i in 1...count {
-        guard let track = getTrack(i, playlist) else {
-            l.error("error on \(i) of \(playlist)")
-            continue
-        }
+    for track in tracks {
         if track.kind == "MP3" {
             if !dry_run {
-                fileHandle?.write("#EXTINF:\(track.duration), \(track.artist ?? "") - \(track.title ?? "")\n".data(using: .utf8)!)
-                fileHandle?.write("\(track.path)\n".data(using: .utf8)!)
+                fileHandle?.write("#EXTINF:\(track.duration),\(track.artist ?? "") - \(track.title ?? "")\n".data(using: .utf8)!)
+                let fileURL = URL(fileURLWithPath: track.path)
+                fileHandle?.write("\(fileURL.absoluteString)\n".data(using: .utf8)!)
             }
         } else if track.kind == "FLAC" {
             if !createMp3(withTrack: track) {
@@ -72,8 +76,9 @@ func exportPlaylistAplScript(_ playlist: String) {
                 continue
             }
             if !dry_run {
-                fileHandle?.write("#EXTINF:\(track.duration), \(track.artist ?? "") - \(track.title ?? "")\n".data(using: .utf8)!)
-                fileHandle?.write("\(track.path)\n".data(using: .utf8)!)
+                fileHandle?.write("#EXTINF:\(track.duration),\(track.artist ?? "") - \(track.title ?? "")\n".data(using: .utf8)!)
+                let fileURL = URL(fileURLWithPath: track.path)
+                fileHandle?.write("\(fileURL.absoluteString)\n".data(using: .utf8)!)
             }
         } else {
             l.warning("track \(track.path) is not recognized")
@@ -83,7 +88,7 @@ func exportPlaylistAplScript(_ playlist: String) {
     }
 }
 
-func checkForImage(_ track: TrackInfo) -> String? {
+func checkForImage(_ track: SwTrack) -> String? {
     let temporaryDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
     let tmp_path = temporaryDirectoryURL.appendingPathComponent("\(track.id).jpg").path
     
@@ -118,15 +123,13 @@ func checkForImage(_ track: TrackInfo) -> String? {
     return nil
 }
 
-func createMp3(withTrack track: TrackInfo) -> Bool {
+func createMp3(withTrack track: SwTrack) -> Bool {
     let filename = "\(track.id).mp3"
     let directory = String(Int(track.id / 1000))
     let output_file = mp3_url!.appendingPathComponent(directory).appendingPathComponent(filename).path
     if FileManager.default.fileExists(atPath: output_file) {
         l.debug("track \(track.path) is already converted to mp3")
         track.path = output_file
-        //TODO: I think this might be a bad idea in production, but useful for testing:
-        track.we_created_it = true
         return true
     }
     let dir = URL(fileURLWithPath: output_file).deletingLastPathComponent()
@@ -179,7 +182,9 @@ func createMp3(withTrack track: TrackInfo) -> Bool {
     if let imageloc = imageloc {
         args.append(contentsOf: ["--ti", imageloc])
     }
-    args.append(contentsOf: ["--tc", "SwTrackId:\(track.id)"])
+    if let comment = track.comment {
+        args.append(contentsOf: ["--tc", comment])
+    }
     args.append(contentsOf: ["-", output_file])
     lame.arguments = args
     l.trace("lame args \(args.joined(separator: " "))")
@@ -209,27 +214,23 @@ func createMp3(withTrack track: TrackInfo) -> Bool {
     }
 }
 
-func getTrack(_ i: Int, _ playlist: String) -> TrackInfo? {
+func getTracks(_ playlist: String) -> [SwTrack] {
+    guard let count = getPlaylistLength(playlist) else {
+        return []
+    }
     let source = """
-        tell application "Swinsian"
-            set thepl to playlist named "\(playlist)"
-            set selected to tracks of thepl
-            set tr to item \(i) of selected
-            set sartist to artist of tr
-            set stitle to title of tr
-            set salbum to album of tr
-            set syear to year of tr
-            set stracknumber to track number of tr
-            set stotaltracks to track count of tr
-            set scomment to comment of tr
-            set sduration to duration of tr
-            set skind to kind of tr
-            set spath to path of tr
-            set sid to id of tr
-            
-            return {sartist, stitle, salbum, syear, stracknumber, stotaltracks, scomment, sduration, skind, spath, sid}
-        end tell
-    """
+            tell application "Swinsian"
+                set thepl to playlist named "\(playlist)"
+                set selected to tracks of thepl
+                set thelist to {}
+                set c to count of selected's items
+                repeat with i from 1 to c
+                    set tr to item i of selected
+                    set end of thelist to tr's id
+                end repeat
+                return thelist
+            end tell
+        """
     if let script = NSAppleScript(source: source) {
         var res: NSAppleEventDescriptor
         var error: NSDictionary?
@@ -237,59 +238,27 @@ func getTrack(_ i: Int, _ playlist: String) -> TrackInfo? {
         if let err = error {
             l.error("script error \(err)")
         } else {
-            let track = TrackInfo(res)
-            return track
-        }
-    }
-    return nil
-}
-
-class TrackInfo {
-    let artist: String?
-    let title: String?
-    let album: String?
-    let year: Int32?
-    let tracknumber_pre: Int32?
-    let totaltracks: Int32?
-    let comment: String?
-    let duration: Int32
-    let kind: String
-    var path: String
-    let id: Int32
-    var we_created_it: Bool?
-    
-    init(_ array: NSAppleEventDescriptor) {
-        self.artist = array.atIndex(1)?.stringValue
-        self.title = array.atIndex(2)?.stringValue
-        self.album = array.atIndex(3)?.stringValue
-        self.year = array.atIndex(4)?.int32Value
-        self.tracknumber_pre = array.atIndex(5)?.int32Value
-        self.totaltracks = array.atIndex(6)?.int32Value
-        self.comment = array.atIndex(7)?.stringValue
-        self.duration = array.atIndex(8)!.int32Value
-        self.kind = array.atIndex(9)!.stringValue!
-        self.path = array.atIndex(10)!.stringValue!
-        self.id = array.atIndex(11)!.int32Value
-    }
-    
-    var tracknumber: String? {
-        guard let tracknumber_pre = tracknumber_pre else {
-            return nil
-        }
-        var output = ""
-        if let totaltracks = totaltracks {
-            if totaltracks != 0 {
-                output = "\(String(tracknumber_pre))/\(String(totaltracks))"
-            } else {
-                output = (String(tracknumber_pre))
+            var tracks: [SwTrack] = []
+            SwDB.read { db in
+                for i in 1...count {
+                    guard let id_string = res.atIndex(i)?.stringValue else {
+                        l.error("problem with index \(i)")
+                        continue
+                    }
+                    let id = Int(id_string)
+                    let request = SwTrack.filter(key: id)
+                    let track = try? request.fetchOne(db)
+                    if track != nil {
+                        tracks.append(track!)
+                    } else {
+                        l.error("we failed to get a track for \(id_string)")
+                    }
+                }
             }
-        } else {
-            output = (String(tracknumber_pre))
+            return tracks
         }
-        return output
     }
-    
-    
+    return []
 }
 
 func getPlaylistLength(_ playlist: String) -> Int? {

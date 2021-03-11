@@ -144,24 +144,44 @@ class PlaylistTable: Record {
     }
 }
 
-class SwTrackTable: Record {
+class SwTrack: Record {
     var sw_track_id: Int64
     var sw_lastplayed: Double?
     var sw_playcount: Int64
     var sw_rating: Int64
+    let artist: String?
+    let title: String?
+    let album: String?
+    let year: Int32?
+    let tracknumber_pre: Int32?
+    let totaltracks: Int32?
+    let comment: String?
+    let duration: Int32
+    var path: String
+    var we_created_it: Bool?
     
-    init(sw_track_id: Int64, sw_lastplayed: Double?, sw_playcount: Int64, sw_rating: Int64) {
+    init(sw_track_id: Int64, sw_lastplayed: Double?, sw_playcount: Int64, sw_rating: Int64, artist: String?, title: String?, album: String?, year: Int32?, tracknumber_pre: Int32?, totaltracks: Int32?, comment: String?, duration: Int32, path: String, we_created_it: Bool? = nil) {
         self.sw_track_id = sw_track_id
         self.sw_lastplayed = sw_lastplayed
         self.sw_playcount = sw_playcount
         self.sw_rating = sw_rating
+        self.artist = artist
+        self.title = title
+        self.album = album
+        self.year = year
+        self.tracknumber_pre = tracknumber_pre
+        self.totaltracks = totaltracks
+        self.comment = comment
+        self.duration = duration
+        self.path = path
+        self.we_created_it = we_created_it
         super.init()
     }
     
     override class var databaseTableName: String { "track" }
     
     enum Columns: String, ColumnExpression {
-        case track_id, lastplayed, playcount, rating
+        case track_id, lastplayed, playcount, rating, artist, title, album, year, tracknumber, totaltracknumber, comment, length, path
     }
     
     required init(row: Row) {
@@ -169,7 +189,49 @@ class SwTrackTable: Record {
         sw_lastplayed = row[Columns.lastplayed]
         sw_playcount = row[Columns.playcount]
         sw_rating = row[Columns.rating]
+        artist = row[Columns.artist]
+        title = row[Columns.title]
+        album = row[Columns.album]
+        year = row[Columns.year]
+        tracknumber_pre = row[Columns.tracknumber]
+        totaltracks = row[Columns.totaltracknumber]
+        comment = row[Columns.comment]
+        duration = row[Columns.length]
+        path = row[Columns.path]
+        we_created_it = nil
         super.init(row: row)
+    }
+    
+    var kind: String {
+        let ext = URL(fileURLWithPath: self.path).pathExtension.lowercased()
+        if ext == "mp3" {
+            return "MP3"
+        } else if ext == "flac" {
+            return "FLAC"
+        } else {
+            return "OTHER"
+        }
+    }
+    
+    var id: Int {
+        return Int(self.sw_track_id)
+    }
+    
+    var tracknumber: String? {
+        guard let tracknumber_pre = tracknumber_pre else {
+            return nil
+        }
+        var output = ""
+        if let totaltracks = totaltracks {
+            if totaltracks != 0 {
+                output = "\(String(tracknumber_pre))/\(String(totaltracks))"
+            } else {
+                output = (String(tracknumber_pre))
+            }
+        } else {
+            output = (String(tracknumber_pre))
+        }
+        return output
     }
 }
 
