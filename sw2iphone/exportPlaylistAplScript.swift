@@ -112,11 +112,25 @@ func checkForImage(_ track: SwTrack) -> String? {
     let to_check = ["cover.jpg", "cover.jpeg", "front.jpg", "folder.jpg"]
     for filename in to_check {
         if FileManager.default.fileExists(atPath: folder_url.appendingPathComponent(filename).path) {
-            if ((try? FileManager.default.copyItem(at: folder_url.appendingPathComponent(filename), to: URL(fileURLWithPath: tmp_path))) != nil) {
-                return tmp_path
-            } else {
+            do {
+                try FileManager.default.copyItem(at: folder_url.appendingPathComponent(filename), to: URL(fileURLWithPath: tmp_path))
+                l.trace("think we coppied \(folder_url.appendingPathComponent(filename))")
+                if (FileManager.default.contentsEqual(atPath: folder_url.appendingPathComponent(filename).path, andPath: tmp_path)) {
+                    return tmp_path
+                } else {
+                    l.debug("found image file \(folder_url.appendingPathComponent(filename).path), but the copy failed")
+                    try FileManager.default.removeItem(at: URL(fileURLWithPath: tmp_path))
+                }
+            } catch {
+                l.debug("oops error on the copy \(error)")
                 l.error("error copying image for \(folder_url.appendingPathComponent(filename).path) to \(tmp_path)")
             }
+//            if ((try? FileManager.default.copyItem(at: folder_url.appendingPathComponent(filename), to: URL(fileURLWithPath: tmp_path))) != nil) {
+//                l.trace("think we copied \(folder_url.appendingPathComponent(filename))")
+//                return tmp_path
+//            } else {
+//                l.error("error copying image for \(folder_url.appendingPathComponent(filename).path) to \(tmp_path)")
+//            }
         }
     }
     
@@ -201,13 +215,12 @@ func createMp3(withTrack track: SwTrack) -> Bool {
         l.info("would have created an mp3 for \(track.path)")
     }
     
-    if let imageloc = imageloc {
-        try? FileManager.default.removeItem(at: URL(fileURLWithPath: imageloc))
-    }
-    
     if status == 0 {
         track.path = output_file
         track.we_created_it = true
+        if let imageloc = imageloc {
+            try? FileManager.default.removeItem(at: URL(fileURLWithPath: imageloc))
+        }
         return true
     } else {
         return false

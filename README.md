@@ -2,9 +2,9 @@
 A command line tool to export [Swinsian](https://swinsian.com/) playlists to iTunes/Music and sync back playcounts and ratings.
 * Converts FLAC files to mp3 (requires sox and lame) as needed. Tries (not too hard) to find cover images (cover.jpg, etc), and include them (requires metaflac).
 * Reads song data from the iTunesLibrary Framework (macOS 10.15+). (Thanks to code from the [idbcl](https://github.com/jmkerr/idbcl/) project.)
-* Keeps track of files being removed from iTunes, so that we can keep proper count of playcount, and remove files from disk that we transcoded.
+* Keeps track of files being added or removed from iTunes, so that we can keep proper count of playcount, and clean up files from disk that we transcoded if desired.
 ### Install:
-* Download `sw2iphone.zip` from the latest [release](https://github.com/akda5id/sw2iphone/releases/tag/v0.3.0) and extract it and place it somewhere in your $PATH (or reference it directly).
+* Download `sw2iphone.zip` from the latest [release](https://github.com/akda5id/sw2iphone/releases/latest/download/sw2iphone.zip) and extract it and place it somewhere in your $PATH (or reference it directly).
 * If you have FLAC files you want to sync, make sure you have sox, lame, and metaflac installed in /usr/local/bin/. Recommend installing with [homebrew](https://brew.sh/) for ease: `brew install flac`,  `brew install lame` and `brew install sox`.
 #### Usage:
 `sw2iphone -h` will give the commands, but here is what you need to know:
@@ -39,6 +39,6 @@ Optionally, if you want to clean up your iTunes database to remove files you no 
 8) Alternatively to 7, you can also track and delete tracks from iTunes on your own, perhaps with a smart playlist. Either method works fine, on the next `sw2iphone -s` we will detect the removed tracks. 
 9) Optionally after 7, or 8, you can run `sw2iphone -s --clean`. This will remove any transcoded (mp3 conversions of FLAC files) that we created from disk.
 
-iTunes ignores files that it already knows about when you import a playlist, so feel free to export playlists using `-e` as many times over as you like, even if most of the files are duplicates. (iTunes will create a duplicate play**list** though, so you will need to clean up old playlists on iTunes before bringing it in again.) I have a smart playlist in Swinsian for unplayed and unrated songs, and continuously export that, and bring it to my phone. Then as they get played and rated, the `-s` syncs back to Swinsian dropping those files from that playlist, which I export back to iTunes again, ad nauseam.
+iTunes ignores files that it already knows about when you import a playlist, so feel free to export playlists using `-e` as many times over as you like, even if most of the files are duplicates. (iTunes will create a duplicate play**list** though, so you will need to clean up old playlists on iTunes before bringing it in again.) I have a smart playlist in Swinsian for unplayed and unrated songs, and continuously export that, and bring it to my phone. Then as they get played and rated, the `-s` syncs back to Swinsian, which drops those files from that playlist, which I export back to iTunes again, ad nauseam.
 
 Note that if you delete files from iTunes, you **must** run a `sw2iphone -s` *before* adding them back, otherwise we will potentially lose playcounts.
